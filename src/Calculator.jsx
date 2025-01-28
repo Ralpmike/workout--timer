@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
-// import clickSound from "./ClickSound.m4a";
+import { useCallback, useEffect, useState } from "react";
+import clickSound from "./ClickSound.m4a";
 import { memo } from "react";
 
 function Calculator({ workouts, allowSound }) {
@@ -12,6 +12,9 @@ function Calculator({ workouts, allowSound }) {
   // const duration = (number * sets * speed) / 60 + (sets - 1) * durationBreak;
   const [duration, setDuration] = useState(0);
 
+  const mins = Math.floor(duration);
+  const seconds = (duration - mins) * 60;
+
   function handleInc() {
     setDuration(Math.floor(duration) + 1);
   }
@@ -19,20 +22,23 @@ function Calculator({ workouts, allowSound }) {
   function handleDec() {
     setDuration(duration < 1 ? 0 : Math.ceil(duration) - 1);
   }
-
   useEffect(() => {
     setDuration((number * sets * speed) / 60 + (sets - 1) * durationBreak);
   }, [number, sets, speed, durationBreak]);
 
-  const mins = Math.floor(duration);
-  const seconds = (duration - mins) * 60;
+  useEffect(() => {
+    const playSound = function () {
+      if (!allowSound) return;
+      const sound = new Audio(clickSound);
+      sound.play();
+    };
 
-  const playSound = function () {
-    if (!allowSound) return;
-    const sound = new Audio(clickSound);
-    sound.play();
-  };
+    playSound();
+  }, [duration, allowSound]);
 
+  useEffect(() => {
+    document.title = `Your ${number}-excercise workout`;
+  }, [number]);
   return (
     <>
       <form>
